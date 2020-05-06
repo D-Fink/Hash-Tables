@@ -10,12 +10,10 @@ class HashTableEntry:
 
 
 class HashTable:
-    """
-    A hash table that with `capacity` buckets
-    that accepts string keys
-
-    Implement this.
-    """
+    
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.storage = [None] * capacity
 
     def fnv1(self, key):
         """
@@ -25,11 +23,10 @@ class HashTable:
         """
 
     def djb2(self, key):
-        """
-        DJB2 32-bit hash function
-
-        Implement this, and/or FNV-1.
-        """
+        hash = 5381
+        for i in key:
+            hash = (hash * 33) + ord(i)
+        return hash
 
     def hash_index(self, key):
         """
@@ -47,6 +44,10 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        if self.storage[index] is None:
+            print('collision')
+        self.storage[index] = HashTableEntry(key, value)
 
     def delete(self, key):
         """
@@ -56,6 +57,8 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        self.storage[index] = None
 
     def get(self, key):
         """
@@ -65,6 +68,10 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        if self.storage[index] is None:
+            return None
+        return self.storage[index].value
 
     def resize(self):
         """
@@ -73,6 +80,12 @@ class HashTable:
 
         Implement this.
         """
+        prev_storage = self.storage
+        self.capacity *= 2
+        self.storage = [None] * self.capacity
+        for i in prev_storage:
+            if i is not None:
+                self.put(i.key, i.value)
 
 if __name__ == "__main__":
     ht = HashTable(2)
