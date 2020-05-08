@@ -10,12 +10,11 @@ class HashTableEntry:
 
 
 class HashTable:
-    """
-    A hash table that with `capacity` buckets
-    that accepts string keys
-
-    Implement this.
-    """
+    
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.storage = [None] * capacity
+        self.size = 0
 
     def fnv1(self, key):
         """
@@ -25,11 +24,10 @@ class HashTable:
         """
 
     def djb2(self, key):
-        """
-        DJB2 32-bit hash function
-
-        Implement this, and/or FNV-1.
-        """
+        hash = 5381
+        for i in key:
+            hash = (hash << 5) + ord(i)
+        return hash & 0xffffffff
 
     def hash_index(self, key):
         """
@@ -47,6 +45,21 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        cur = self.storage[index]
+        if cur is None:
+            self.storage[index] = HashTableEntry(key, value)
+            self.size += 1
+            return
+        if cur.key == key:
+            cur.value = value
+            return
+        while cur.next is not None:
+            if cur.next.key == key:
+                cur.next.value = value
+                return
+            cur = cur.next
+        cur.next = HashTableEntry(key, value)
 
     def delete(self, key):
         """
@@ -56,6 +69,17 @@ class HashTable:
 
         Implement this.
         """
+        cur = self.storage[self.hash_index(key)]
+        while cur.key is not key:
+            if cur.next is None:
+                return False
+            cur = cur.next
+        cur_val = None
+        if cur.key is key:
+            cur_val = cur.value
+            cur.value = None
+            self.size -= 1
+        return cur_val
 
     def get(self, key):
         """
@@ -65,6 +89,16 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        cur = self.storage[index]
+
+        if cur is None:
+            return False
+        while cur.key is not key:
+            if cur.next is None:
+                return False
+            cur = cur.next
+        return cur.value
 
     def resize(self):
         """
@@ -73,6 +107,17 @@ class HashTable:
 
         Implement this.
         """
+        prev_storage = self.storage
+        if len(self.storage) // self.size > 0.7:
+            print(".7 has been reached. Expanding...")
+            self.capacity *= 2
+            self.storage = [None] * self.capacity
+            for i in prev_storage:
+                while i is not None:
+                    prev = i
+                    i = prev.next
+                    prev.next = None
+                    self.put(prev.key, prev.value)
 
 if __name__ == "__main__":
     ht = HashTable(2)
