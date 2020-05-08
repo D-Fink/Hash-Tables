@@ -1,5 +1,22 @@
-def word_count(s):
+def word_count(s, cache=None):
     # Implement me.
+    cache = {}
+
+    arr = s.replace('\r', ' ').replace('\n', ' ').replace('\t', ' ').split(' ')
+
+    for i in arr:
+        i.replace('\t', '')
+
+    ignore_char = map(lambda i : i.strip('":;,.-+=/\\|[]{}()*^&').lower(), arr)
+    for i in ignore_char:
+        if i == "":
+            continue
+        if i not in cache:
+            cache[i] = 1
+        else:
+            cache[i] += 1
+
+    return cache
 
 
 if __name__ == "__main__":
